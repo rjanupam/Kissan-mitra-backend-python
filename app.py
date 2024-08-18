@@ -152,8 +152,9 @@ def fertilizer_prediction():
             moisture = int(data["moisture"])
             soil_type = data.get("soil_type")
             crop = data.get("crop")
-            temperature = int(data["temperature"])
-            humidity = int(data["humidity"])
+            city = data.get("city")
+
+            temperature, humidity = weather_fetch(city)
 
             input_data = np.array(
                 [temperature, humidity, moisture, soil_type, crop, N, P, K]
