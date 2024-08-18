@@ -1,21 +1,21 @@
-import pickle
 import io
-from PIL import Image
-import requests
+import pickle
 
 import numpy as np
+import requests
 import torch
 from flask import Flask, jsonify, request
+from PIL import Image
 from torchvision import transforms
 
 import env
 from utils.disease import disease_classes, disease_dic
-from utils.fertilizer import fertilizer_preprocess
+from utils.fertilizer import fertilizer_dic, fertilizer_preprocess
 from utils.model import ResNet9
 from utils.yields import yield_preprocess
 
 # model paths
-crop_model_path = "models/crop_recommender.pkl"
+crop_model_path = "models/crop_recommendere.pkl"
 yield_model_path = "models/yield_predictor.pkl"
 fertilizer_model_path = "models/fertilizer_recommender.pkl"
 disease_model_path = "models/disease_teller.pth"
@@ -24,7 +24,7 @@ disease_model_path = "models/disease_teller.pth"
 with open(crop_model_path, "rb") as f:
     crop_model = pickle.load(f)
 
-#with open(yield_model_path, "rb") as f:
+# with open(yield_model_path, "rb") as f:
 #    model = pickle.load(f)
 #    yield_model, yield_encoder, yield_scaler = (
 #        model["model"],
@@ -175,7 +175,12 @@ def fertilizer_prediction():
 
             decoded_prediction = fertilizer_decoder[prediction[0]]
 
-            return jsonify({"prediction": decoded_prediction})
+            return jsonify(
+                {
+                    "prediction": decoded_prediction,
+                    "description": fertilizer_dic[decoded_prediction],
+                }
+            )
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -202,4 +207,5 @@ def disease_prediction():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
+
