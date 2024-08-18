@@ -1,9 +1,14 @@
 import pickle
+import io
+from PIL import Image
+import requests
 
 import numpy as np
 import torch
 from flask import Flask, jsonify, request
+from torchvision import transforms
 
+import env
 from utils.disease import disease_classes, disease_dic
 from utils.fertilizer import fertilizer_preprocess
 from utils.model import ResNet9
@@ -13,19 +18,19 @@ from utils.yields import yield_preprocess
 crop_model_path = "models/crop_recommender.pkl"
 yield_model_path = "models/yield_predictor.pkl"
 fertilizer_model_path = "models/fertilizer_recommender.pkl"
-disease_model_path = "disease_teller.pth"
+disease_model_path = "models/disease_teller.pth"
 
 # open or initialize models
 with open(crop_model_path, "rb") as f:
     crop_model = pickle.load(f)
 
-with open(yield_model_path, "rb") as f:
-    model = pickle.load(f)
-    yield_model, yield_encoder, yield_scaler = (
-        model["model"],
-        model["one_hot_encoder"],
-        model["scaler"],
-    )
+#with open(yield_model_path, "rb") as f:
+#    model = pickle.load(f)
+#    yield_model, yield_encoder, yield_scaler = (
+#        model["model"],
+#        model["one_hot_encoder"],
+#        model["scaler"],
+#    )
 
 
 with open(fertilizer_model_path, "rb") as f:
@@ -84,10 +89,10 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return jsonify({"namaste user"})
+    return jsonify({"msg": "namaste user"})
 
 
-@app.route("/crop-predict")
+@app.route("/crop-predict", methods=["POST"])
 def crop_prediction():
     if request.method == "POST":
         try:
@@ -108,7 +113,7 @@ def crop_prediction():
             return jsonify({"error": str(e)}), 500
 
 
-@app.route("/yield-predict")
+@app.route("/yield-predict", methods=["POST"])
 def yield_prediction():
     if request.method == "POST":
         try:
@@ -136,7 +141,7 @@ def yield_prediction():
             return jsonify({"error": str(e)}), 500
 
 
-@app.route("/fertilizer-predict")
+@app.route("/fertilizer-predict", methods=["POST"])
 def fertilizer_prediction():
     if request.method == "POST":
         try:
@@ -147,9 +152,8 @@ def fertilizer_prediction():
             moisture = int(data["moisture"])
             soil_type = data.get("soil_type")
             crop = data.get("crop")
-            city = data.get("city")
-
-            temperature, humidity = weather_fetch(city)
+            temperature = int(data["temperature"])
+            humidity = int(data["humidity"])
 
             input_data = np.array(
                 [temperature, humidity, moisture, soil_type, crop, N, P, K]
@@ -177,7 +181,7 @@ def fertilizer_prediction():
             return jsonify({"error": str(e)}), 500
 
 
-@app.route("/disease-predict")
+@app.route("/disease-predict", methods=["POST"])
 def disease_prediction():
     if request.method == "POST":
         try:
@@ -195,3 +199,7 @@ def disease_prediction():
             return jsonify({"prediction": prediction})
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

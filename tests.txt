@@ -1,0 +1,13 @@
+Requests (run in terminal, besides flask)
+
+curl -X POST -H "Content-Type: application/json" -d '{"nitrogen": 50, "phosphorous": 50, "pottasium": 50, "ph": 7, "rainfall": 200, "city": "Bhopal"}' http://127.0.0.1:5000/crop-predict
+
+
+curl -X POST -F 'file=@static/images/some.jpg' http://127.0.0.1:5000/disease-predict
+
+
+curl -X POST -H "Content-Type: application/json" -d '{"temperature": 26, "humidity": 52, "moisture": 38, "soil_type": "Sandy", "crop": "Maize", "nitrogen": 37, "pottasium": 0, "phosphorous": 0}' http://127.0.0.1:5000/fertilizer-predict
+
+
+
+curl -X POST -H "Content-Type: application/json" -d '{"temperature": 26, "rainfall": 100, "state": "karnataka", "season": "rabi", "crop": "rice", "nitrogen": 50, "pottasium": 50, "phosphorous": 50, "pH": 6.5, "area": 1000}' http://127.0.0.1:5000/yield-predict
